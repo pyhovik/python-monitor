@@ -17,44 +17,55 @@ class Inspector:
         self.getCpuInfo()
 
     def getOsInfo(self):
-        self.hostname = check_output('cat /etc/hostname', 
-                                    encoding='utf-8', 
-                                    shell=True
-                                    ).rstrip()
-        self.os_info = check_output('lsb_release -d', 
-                                    encoding='utf-8', 
-                                    shell=True
-                                    ).split(':')[1].strip()
+        self.hostname = check_output(
+            'cat /etc/hostname', 
+            encoding='utf-8', 
+            shell=True
+            ).rstrip()
+        self.os_info = check_output(
+            'lsb_release -d', 
+            encoding='utf-8', 
+            shell=True
+            ).split(':')[1].strip()
+    
     def getCpuInfo(self):
-        self.cpu_model = check_output("cat /proc/cpuinfo | grep 'model name' -m1", 
-                                    encoding='utf-8', 
-                                    shell=True
-                                    ).split(':')[1].strip()
+        self.cpu_model = check_output(
+            "cat /proc/cpuinfo | grep 'model name' -m1", 
+            encoding='utf-8', 
+            shell=True
+            ).split(':')[1].strip()
+    
     def getMemInfo(self):
-        self.mem_total = check_output("free --mega | grep Mem | awk '{print $2}'", 
-                                    encoding='utf-8', 
-                                    shell=True
-                                    ).strip()
-        self.swap_total = check_output("free --mega | grep Swap | awk '{print $2}'", 
-                                    encoding='utf-8', 
-                                    shell=True
-                                    ).strip()                                   
+        self.mem_total = check_output(
+            "free --mega | grep Mem | awk '{print $2}'", 
+            encoding='utf-8', 
+            shell=True
+            ).strip()
+        self.swap_total = check_output(
+            "free --mega | grep Swap | awk '{print $2}'", 
+            encoding='utf-8', 
+            shell=True
+            ).strip()                                   
+    
     def getMotherboardInfo(self):
-        self.mb_name = check_output("cat /sys/devices/virtual/dmi/id/board_name", 
-                                    encoding='utf-8', 
-                                    shell=True
-                                    ).rstrip()
-        self.mb_vendor = check_output("cat /sys/devices/virtual/dmi/id/board_vendor", 
-                                    encoding='utf-8', 
-                                    shell=True
-                                    ).rstrip()
+        self.mb_name = check_output(
+            "cat /sys/devices/virtual/dmi/id/board_name", 
+            encoding='utf-8', 
+            shell=True
+            ).rstrip()
+        self.mb_vendor = check_output(
+            "cat /sys/devices/virtual/dmi/id/board_vendor", 
+            encoding='utf-8', 
+            shell=True
+            ).rstrip()
+    
     def getRomInfo(self):
-        disks = check_output("lsblk -o NAME,SIZE,TYPE | grep disk", 
-                            encoding='utf-8', 
-                            shell=True
-                            )
-        
-        pass       
+        disks = check_output(
+            "lsblk -o NAME,SIZE,TYPE | grep disk", 
+            encoding='utf-8', 
+            shell=True
+            )
+               
     def showOsInfo(self): pass
     def showCpuInfo(self): pass
     def showMemInfo(self): pass
