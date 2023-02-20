@@ -15,6 +15,9 @@ class Inspector:
     def __init__(self):
         self.getOsInfo()
         self.getCpuInfo()
+        self.getMemInfo()
+        self.getMotherboardInfo()
+        self.getDiskInfo()
 
     def getOsInfo(self):
         self.hostname = check_output(
@@ -37,12 +40,12 @@ class Inspector:
     
     def getMemInfo(self):
         self.mem_total = check_output(
-            "free --mega | grep Mem | awk '{print $2}'", 
+            "free --giga | grep Mem | awk '{print $2}'", 
             encoding='utf-8', 
             shell=True
             ).strip()
         self.swap_total = check_output(
-            "free --mega | grep Swap | awk '{print $2}'", 
+            "free --giga | grep Swap | awk '{print $2}'", 
             encoding='utf-8', 
             shell=True
             ).strip()                                   
@@ -59,12 +62,12 @@ class Inspector:
             shell=True
             ).rstrip()
     
-    def getRomInfo(self):
-        disks = check_output(
-            "lsblk -o NAME,SIZE,TYPE | grep disk", 
+    def getDiskInfo(self):
+        self.disks = check_output(
+            "lsblk -r -o NAME,SIZE,TYPE | grep disk", 
             encoding='utf-8', 
             shell=True
-            )
+            ).split()
                
     def showOsInfo(self): pass
     def showCpuInfo(self): pass
@@ -77,5 +80,4 @@ class Inspector:
 
 if __name__ == '__main__':
     inspector = Inspector()
-    inspector.showParams()
-    print(inspector)
+    print(inspector.disks)
