@@ -5,6 +5,7 @@
 
 import os
 import re
+import json
 from subprocess import check_output
 
 
@@ -63,12 +64,23 @@ class Inspector:
             ).rstrip()
     
     def getDiskInfo(self):
-        self.disks = check_output(
-            "lsblk -r -o NAME,SIZE,TYPE | grep disk", 
+        out = check_output(
+            "lsblk -J", 
             encoding='utf-8', 
             shell=True
-            ).split()
-               
+            )
+        self.disks = []
+        jout = json.loads(out)
+        # в цикле проходимся по выводу и "собираем" дискиы
+        for device in jout['blockdevices']:
+            if device['type'] == 'disk':
+                self.disks.append(dict(
+                        diskName = device['name'],
+                        diskSize = device['size']
+                    )
+                )
+
+              
     def showOsInfo(self): pass
     def showCpuInfo(self): pass
     def showMemInfo(self): pass
@@ -81,3 +93,4 @@ class Inspector:
 if __name__ == '__main__':
     inspector = Inspector()
     print(inspector.disks)
+    inspector.showParams()
