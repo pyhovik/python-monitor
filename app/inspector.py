@@ -21,6 +21,7 @@ class Inspector:
         self.getDiskInfo()
 
     def getOsInfo(self):
+        """Метод, собирающий инф-цию о ОС"""
         self.hostname = check_output(
             'cat /etc/hostname', 
             encoding='utf-8', 
@@ -33,6 +34,7 @@ class Inspector:
             ).split(':')[1].strip()
     
     def getCpuInfo(self):
+        """Собирает инф-цию о ЦПУ"""
         self.cpu_model = check_output(
             "cat /proc/cpuinfo | grep 'model name' -m1", 
             encoding='utf-8', 
@@ -40,6 +42,7 @@ class Inspector:
             ).split(':')[1].strip()
     
     def getMemInfo(self):
+        """Собирает инф-2ию о ОЗУ и свап"""
         self.mem_total = check_output(
             "free --giga | grep Mem | awk '{print $2}'", 
             encoding='utf-8', 
@@ -52,6 +55,7 @@ class Inspector:
             ).strip()                                   
     
     def getMotherboardInfo(self):
+        """Собирает инф-2ию о мат. плате"""
         self.mb_name = check_output(
             "cat /sys/devices/virtual/dmi/id/board_name", 
             encoding='utf-8', 
@@ -64,6 +68,7 @@ class Inspector:
             ).rstrip()
     
     def getDiskInfo(self):
+        """собирает инф-2ию о дисках"""
         out = check_output(
             "lsblk -J", 
             encoding='utf-8', 
