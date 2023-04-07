@@ -6,9 +6,10 @@ from app.modules.inspector import Inspector
 
 inspector = Inspector()
 
-@allure.title("Проверка работы модуля;")
+
 class TestInspector:
     
+    @allure.title("Проверка функции 'export_to_dict';")
     def test_returned_params():
         """
         Тест, проверяющий количество собранных параметров.
