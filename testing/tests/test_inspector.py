@@ -9,7 +9,7 @@ inspector = Inspector()
 @allure.title("Проверка работы модуля;")
 class TestInspector:
     
-    def test_returned_params():
+    def test_returned_params(self):
         """
         Тест, проверяющий количество собранных параметров.
         """
