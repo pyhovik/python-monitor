@@ -27,9 +27,11 @@ query_api = influx_client.query_api()
 
 path_to_server_list = conf.get('servers.path_to_list')
 timeout = conf.get('monitoring.timeout')
+notify_time = conf.get('monitoring.notify_time')
 
 log_path = conf.get('notification.logging.log_path')
-logger = custom_logger('healhcheck', log_path)
+log_mode = conf.get('notification.logging.log_mode')
+logger = custom_logger('healhcheck', log_path, log_mode)
 
 
 class ChangeServerStatus(Exception): pass
@@ -110,17 +112,32 @@ class Healthchecker:
                 else:
                     logger.info('All servers have status UP.')
 
+    def notify_server_status(self):
+        while self.enabled:
+            now = time.strftime('%H:%M')
+            if now == notify_time:
+                notification = "Current servers status:\n"
+                for addr in self.servers:
+                    hostname = self.servers[addr]['hostname']
+                    status = 'UP' if self.servers[addr]['status'] else 'DOWN'
+                    notification += f"{hostname} ({addr} - {status})\n"
+                bot.send_message(chat_id=chat_id,
+                                 text=notification)
+            logger.info(f'from notify {now}')
+            time.sleep(30)
+
     def start(self):
         self.enabled = True
-        thr = Thread(target=self.check_servers_status)
-        thr.start()
-        thr.join()
+        thr1 = Thread(target=self.check_servers_status, daemon=True)
+        thr1.start()
         logger.info('Healt checking started.')
+        thr2 = Thread(target=self.notify_server_status, daemon=True)
+        thr2.start()
+        logger.info('Notify daemon started.')
+        thr1.join()
 
     def stop(self):
         self.enabled = False
-        logger.info('Health checking stopping...')
-        time.sleep(self.timeout)
         logger.info('Health checking stopped.')
 
 
@@ -139,5 +156,4 @@ if __name__ == '__main__':
     #     elif flag == 'info':
     #         print(hc.servers)
     #         print(hc.enabled)
-    #         print(influx_client)
 
