@@ -6,7 +6,7 @@ from app.modules.inspector import Inspector
 
 inspector = Inspector()
 
-@allure.title("Проверка работы модуля;")
+
 class TestInspector:
     
     def test_returned_params(self):
