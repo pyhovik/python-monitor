@@ -4,26 +4,10 @@
 
 import psutil
 import time
-import logging
-import schedule
+import threading
+from custom_logger import custom_logger
 
-from threading import Thread, Timer
-from logging.handlers import SysLogHandler
-
-# настройка логгирования
-logger = logging.getLogger('monitor')
-logger.setLevel(logging.INFO)
-
-file_handler = logging.FileHandler('app.log', encoding='utf-8', mode='w')
-file_formatter = logging.Formatter("[%(asctime)s] %(levelname)s (%(name)s): %(message)s")
-file_handler.setFormatter(file_formatter)
-
-syslog_handler = SysLogHandler(address = '/dev/log')
-syslog_formatter = logging.Formatter("(%(name)s) %(levelname)s: %(message)s")
-syslog_handler.setFormatter(syslog_formatter)
-
-logger.addHandler(file_handler)
-logger.addHandler(syslog_handler)
+logger = custom_logger('monitor')
 
 
 class Monitor:
@@ -33,45 +17,51 @@ class Monitor:
     отправляет данные в хранилище (файл, БД и проч.).
     """
 
-    def __init__(self, enabled: bool = True):
+    def __init__(self, enabled: bool = True, period: int = 10):
         self.enabled = enabled
+        self.period = period
 
-    def check_cpu_params(self, period = 10):
-        print(period)
+    def _check_cpu_params(self):
         while self.enabled:
             total_cpu_load = psutil.cpu_percent()
-            logger.info(f'Total CPU usage (%) = {total_cpu_load};')
-            time.sleep(period)
+            logger.info(f'Total CPU usage (%) = {total_cpu_load}.')
+            time.sleep(self.period)
     
-    def check_mem_params(self):
-        free_ram = psutil.virtual_memory().free
-        logger.info(f'Free MEM = {free_ram};')
-        
-    def start(self, period: int = 20):
-        #self.enabled = True
-        schedule.every(period).seconds.do(self.check_cpu_params)
-        schedule.every(period).seconds.do(self.check_mem_params)
-        
+    def _check_mem_params(self):
         while self.enabled:
-            schedule.run_pending()
-            time.sleep(1)
-    
+            free_ram = psutil.virtual_memory().free
+            logger.info(f'Free MEM = {free_ram}.')
+            time.sleep(self.period)
+
+    def start(self):
+        self.enabled = True
+        logger.info(f'Starting monitoring...')
+        # запуск функций в потоках
+        for meth in [m for m in dir(self) if m.startswith('_check')]:
+            meth = getattr(self, meth)
+            threading.Thread(target=meth).start()
+        time.sleep(1)
+        logger.info(f'Monitoring started.')
+
     def stop(self):
         self.enabled = False
-
-    
-
+        time.sleep(self.period)
+        logger.info(f'Monitoring stopped.')
 
 
 if __name__ == '__main__':
     monitor = Monitor()
-    thrd = Thread(target=monitor.check_cpu_params, args=[5])
-    thrd.start()
-    print('next')
-    import random
+    from healthchecker import Healthchecker
+    hc = Healthchecker('app/servers.txt', 20)
     while 1:
-        time.sleep(5)
-        if random.randint(1,4) == 1:
+        flag = input("Ввод (start/stop/exit): ")
+        if flag == 'stop':
+            monitor.stop()
+            hc.stop()
+        elif flag == 'start':
+            monitor.start()
+            hc.start()
+        elif flag == 'exit':
+            monitor.stop()
+            hc.stop()
             break
-        print('wait')
-    monitor.stop()

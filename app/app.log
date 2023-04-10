@@ -1,0 +1,8 @@
+[2023-04-10 17:18:18,249] INFO (healhcheck): Healt checking started.
+[2023-04-10 17:18:42,764] ERROR (healhcheck): ALERT! Servers changed its status!
+tester-17 (100.110.0.91) -> DOWN
+tester-11 (100.110.0.60) -> DOWN
+
+[2023-04-10 17:19:07,768] WARNING (healhcheck): Some servers have status DOWN: ['100.110.0.91', '100.110.0.60']
+[2023-04-10 17:19:32,276] WARNING (healhcheck): Some servers have status DOWN: ['100.110.0.91', '100.110.0.60']
+[2023-04-10 17:19:56,786] WARNING (healhcheck): Some servers have status DOWN: ['100.110.0.91', '100.110.0.60']
