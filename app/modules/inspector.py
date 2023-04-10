@@ -7,6 +7,7 @@ import os
 import psutil
 import cpuinfo
 import platform
+import json
 from subprocess import check_output
 
 
@@ -67,11 +68,21 @@ class Inspector:
     def get_disk_info(self):
         """Собирает инф-цию о дисках."""
         out = check_output(
-            "lsscsi -s | awk '{print $4,$5,$7,$8}'", 
+            "lsblk -o +model -J", 
             encoding='utf-8', 
             shell=True
             )
-        self.disks = out.split('\n')[:-1]
+        self.disks = []
+        jout = json.loads(out)
+        # в цикле проходимся по выводу и "собираем" дискиы
+        for device in jout['blockdevices']:
+            if device['type'] == 'disk':
+                self.disks.append([
+                        device['name'],
+                        device['size'],
+                        device['model']
+                    ]
+                )
   
     def show_params(self):
         """Печатает все доступные параметры в консоль."""
