@@ -48,20 +48,3 @@ class Monitor:
         time.sleep(self.period)
         logger.info(f'Monitoring stopped.')
 
-
-if __name__ == '__main__':
-    monitor = Monitor()
-    from healthchecker import Healthchecker
-    hc = Healthchecker('app/servers.txt', 20)
-    while 1:
-        flag = input("Ввод (start/stop/exit): ")
-        if flag == 'stop':
-            monitor.stop()
-            hc.stop()
-        elif flag == 'start':
-            monitor.start()
-            hc.start()
-        elif flag == 'exit':
-            monitor.stop()
-            hc.stop()
-            break

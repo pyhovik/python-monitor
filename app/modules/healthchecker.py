@@ -24,8 +24,7 @@ class Healthchecker:
                  influx_org = None,
                  influx_server = None,
                  log_path = 'healhcheck.log',
-                 log_mode = 'w',
-                 notify_time = '09:00'):
+                 log_mode = 'w'):
         
         self.servers = {}
         with open(path_to_server_list) as f:
@@ -59,8 +58,6 @@ class Healthchecker:
             self._bot_enabled = False
         
         self._logger = custom_logger('healhcheck', log_path, log_mode)
-
-        self._notify_time = notify_time
 
     def check_servers_status(self):
         try:
@@ -109,7 +106,7 @@ class Healthchecker:
             self._logger.error(text_err)
             if self._bot_enabled:
                 self._bot.send_message(chat_id=self._chat_id,
-                                    text=text_err)
+                                       text=text_err)
         else:
             if self.unavailable_servers:
                 self._logger.warning(
