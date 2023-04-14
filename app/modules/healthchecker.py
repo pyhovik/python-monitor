@@ -3,7 +3,8 @@
 """
 
 import telebot
-from icmplib import multiping
+import time
+from icmplib import multiping, ping
 from .custom_logger import custom_logger
 from influxdb_client import InfluxDBClient, Point
 
@@ -77,7 +78,16 @@ class Healthchecker:
                 if status_before != actual_status:
                     status_changed = True
                     if actual_status == False:
-                        self.unavailable_servers.append(host.address)
+                        # трехкратная проверка текущего статуса
+                        for _ in range(3):
+                            recheck_status = ping(host.address,
+                                                  privileged=False,
+                                                  count=3).is_alive
+                            time.sleep(3)
+                        if actual_status == recheck_status:
+                            self.unavailable_servers.append(host.address)
+                        else:
+                            status_changed = False
                     elif actual_status == True:
                         self.unavailable_servers.remove(host.address)
                     changed_servers.append(

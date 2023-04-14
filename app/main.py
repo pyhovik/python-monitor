@@ -15,7 +15,7 @@ influx_org = conf.get('influxdb.org')
 influx_server = conf.get('influxdb.server')
 
 path_to_server_list = conf.get('servers.path_to_list')
-timeout = conf.get('monitoring.timeout')
+timeout = int(conf.get('monitoring.timeout'))
 notify_time = conf.get('monitoring.notify_time')
 
 log_path = conf.get('notification.logging.log_path')
