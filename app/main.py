@@ -4,8 +4,8 @@ from modules.healthchecker import Healthchecker
 from pyhocon import ConfigFactory
 
 
-
 conf = ConfigFactory.parse_file('hocon.conf')
+
 bot_token = conf.get('notification.telegram.token')
 chat_id = conf.get('notification.telegram.chat_id')
 

@@ -24,7 +24,6 @@ class Healthchecker:
                  influx_bucket = None,
                  influx_org = None,
                  influx_server = None,
-                 log_path = 'healhcheck.log',
                  log_mode = 'w'):
         
         self.servers = {}
@@ -58,7 +57,8 @@ class Healthchecker:
         else:
             self._bot_enabled = False
         
-        self._logger = custom_logger('healhcheck', log_path, log_mode)
+        self._logger = custom_logger(name='healhcheck',
+                                     mode=log_mode)
 
     def check_servers_status(self):
         try:

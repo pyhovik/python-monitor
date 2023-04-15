@@ -7,7 +7,6 @@ def custom_logger(name,
                   console_handl = True,
                   file_handl = False,
                   syslog_handle = False,
-                  log_path = f'{__name__}.log',
                   mode = 'w'):
     
     logger = logging.getLogger(name)
@@ -23,9 +22,9 @@ def custom_logger(name,
         logger.addHandler(console_handler)
 
     if file_handl:
-        file_handler = logging.FileHandler(log_path,
-                                        encoding='utf-8',
-                                        mode=mode)
+        file_handler = logging.FileHandler(filename=f'{name}.log',
+                                           encoding='utf-8',
+                                           mode=mode)
         file_formatter = logging.Formatter(
             "[%(asctime)s] %(levelname)s (%(name)s): %(message)s"
             )
