@@ -10,7 +10,7 @@ INFLUX_BUCKET=health_status
 INFLUX_ORG=eltex
 INFLUX_SERVER=100.110.0.59
 # servers
-PATH_TO_LIST=servers.txt
+PATH_TO_LIST=/app/servers.txt
 # monitoring
 MONITORING_TIMEOUT =100
 NOTIFY_TIME=09:00

@@ -64,48 +64,39 @@ class Healthchecker:
         try:
             hosts = multiping(
                 addresses=self.servers_ip,
-                timeout=2,
                 privileged=False
             )
             # обновляем информацию
-            status_changed = False
             changed_servers = []
+            status_changed = False
             for host in hosts:
                 status_before = self.servers[host.address]['status']
                 actual_status = host.is_alive
-                self.servers[host.address]['status'] = actual_status
                 # если произошла смена статуса...
                 if status_before != actual_status:
-                    status_changed = True
-                    if actual_status == False:
-                        # трехкратная проверка текущего статуса
-                        for _ in range(3):
-                            recheck_status = ping(host.address,
-                                                  privileged=False,
-                                                  count=3).is_alive
-                            time.sleep(3)
-                        if actual_status == recheck_status:
-                            self.unavailable_servers.append(host.address)
-                        else:
-                            status_changed = False
-                    elif actual_status == True:
-                        self.unavailable_servers.remove(host.address)
-                    changed_servers.append(
+                    # трехкратная проверка изменившегося статуса
+                    for _ in range(3):
+                        actual_status = ping(host.address,
+                                             privileged=False,
+                                             count=3).is_alive
+                        time.sleep(3)
+                    # если изменения подтвердились...
+                    if actual_status != status_before:
+                        status_changed = True
+                        changed_servers.append(
                         (
                             host.address,
                             self.servers[host.address]['hostname'],
                             'UP' if actual_status else 'DOWN'
                         )
                     )
-                # пишем в базу
-                if self._influx_enabled:
-                    host=self.servers[host.address]['hostname']
-                    point = Point("servers_status")
-                    point.tag('host', host)
-                    point.field('status', int(actual_status))
-                    self._write_api.write(self._influx_bucket,
-                                        self._influx_org,
-                                        point)
+                    # если сервер недоступен...
+                    if actual_status == False:
+                        self.unavailable_servers.append(host.address)
+                    else:
+                        self.unavailable_servers.remove(host.address)
+                # обновляем запись
+                self.servers[host.address]['status'] = actual_status
             # если есть изменения - генерируем исключение
             if status_changed:
                 raise ChangeServerStatus(changed_servers)
@@ -117,12 +108,14 @@ class Healthchecker:
             if self._bot_enabled:
                 self._bot.send_message(chat_id=self._chat_id,
                                        text=text_err)
-        else:
+        finally:
             if self.unavailable_servers:
                 self._logger.warning(
                     f'Some servers have status DOWN: {self.unavailable_servers}')
             else:
                 self._logger.info('All servers have status UP.')
+            if self._influx_enabled:
+                self.write_to_database()
 
     def notify_server_status(self):
         notification = "Current servers status:\n"
@@ -132,4 +125,15 @@ class Healthchecker:
             notification += f"{hostname} ({addr} - {status})\n"
         if self._bot_enabled:
             self._bot.send_message(chat_id=self._chat_id,
-                                    text=notification)
+                                   text=notification)
+
+    def write_to_database(self):
+        for addr in self.servers:
+            hostname = self.servers[addr]['hostname']
+            status = self.servers[addr]['status']
+            point = Point("servers_status")
+            point.tag('host', hostname)
+            point.field('status', int(status))
+            self._write_api.write(self._influx_bucket,
+                                  self._influx_org,
+                                  point)
