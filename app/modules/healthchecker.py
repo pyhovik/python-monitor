@@ -94,7 +94,10 @@ class Healthchecker:
                     if actual_status == False:
                         self.unavailable_servers.append(host.address)
                     else:
-                        self.unavailable_servers.remove(host.address)
+                        try:
+                            self.unavailable_servers.remove(host.address)
+                        except ValueError:
+                            pass
                 # обновляем запись
                 self.servers[host.address]['status'] = actual_status
             # если есть изменения - генерируем исключение
