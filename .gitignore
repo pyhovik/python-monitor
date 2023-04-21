@@ -1,3 +1,4 @@
 python-monitor.code-workspace
 .vscode
 .venv
+*.log

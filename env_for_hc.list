@@ -1,0 +1,16 @@
+# telegram 
+TELEGRAM_TOKEN=6275229308:AAFH03i0G1xs5KxVJ1b2vzhks3RIQ2bRO_s
+TELEGRAM_CHAT_ID=-1001858879349
+# logging
+# LOG_PATH=app.log
+# LOG_MOD=w
+# influxdb
+INFLUX_TOKEN=super_stupid_token
+INFLUX_BUCKET=health_status
+INFLUX_ORG=eltex
+INFLUX_SERVER=100.110.0.59
+# servers
+PATH_TO_LIST=/app/servers.txt
+# monitoring
+MONITORING_TIMEOUT=100
+NOTIFY_TIME=09:00
